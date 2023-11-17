@@ -128,7 +128,7 @@ router.delete("/offer/delete/:id", async (req, res) => {
   if (deletedoffer) {
     res.status(201).json({ message: "Deleted" });
   } else {
-    res.status(400).json({ message: "The ID does not exist" });
+    res.status(400).json({ message: "Unable to delete" });
   }
 });
 
