@@ -88,6 +88,24 @@ router.post(
   fileUpload(),
   async (req, res) => {
     try {
+      if (req.body.description.length > 500) {
+        return res.status(500).json({
+          message: "description length over 500 characters",
+        });
+      }
+
+      if (req.body.name.length > 50) {
+        return res.status(500).json({
+          message: "product name length over 50 characters",
+        });
+      }
+
+      if (req.body.price > 100000) {
+        return res.status(500).json({
+          message: "product price over 100 000 $",
+        });
+      }
+
       const newOffer = new Offer({
         product_name: req.body.name,
         product_description: req.body.description,
@@ -103,12 +121,24 @@ router.post(
       });
 
       if (req.files) {
-        const product_image_url = uploadToCloudInary(
-          "offers",
-          req.files.picture,
-          newOffer._id
-        );
-        newOffer.product_image = product_image_url;
+        if (req.files.picture.length > 5) {
+          res.status(500).json({
+            message: "Unable to create offer, pictures quantity over 5",
+          });
+        }
+
+        const uploadedImages = [];
+        for (let i = 0; i < req.files.picture.length; i++) {
+          //console.log(req.files.picture[i]);
+          uploadedImages.push(
+            await uploadToCloudInary(
+              "offers",
+              req.files.picture[i],
+              newOffer._id + "-" + i.toString()
+            )
+          );
+        }
+        newOffer.product_image = uploadedImages;
       }
 
       await newOffer.save();
