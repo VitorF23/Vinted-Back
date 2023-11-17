@@ -4,9 +4,11 @@ const User = require("../models/User");
 const uid2 = require("uid2");
 const encBase64 = require("crypto-js/enc-base64");
 const SHA256 = require("crypto-js/sha256");
+const fileUpload = require("express-fileupload");
+const { uploadToCloudInary } = require("../utils/utils");
 
 // sign up
-router.post("/user/signup", async (req, res) => {
+router.post("/user/signup", fileUpload(), async (req, res) => {
   try {
     const email = req.body.email;
     if (!email || email === "") {
@@ -41,6 +43,19 @@ router.post("/user/signup", async (req, res) => {
       hash: hash,
       salt: salt,
     });
+
+    try {
+      if (req.files) {
+        newUser.account.avatar = await uploadToCloudInary(
+          "avatar",
+          req.files.avatar,
+          newUser._id
+        );
+        console.log("Create user  with avatar : " + newUser.account.avatar);
+      }
+    } catch (err) {
+      console.error(err);
+    }
 
     const newDbAccount = await newUser.save();
     res.status(200).json({

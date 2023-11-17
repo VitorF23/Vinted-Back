@@ -3,10 +3,9 @@ const router = express.Router();
 const Offer = require("../models/Offer");
 const fileUpload = require("express-fileupload");
 const isAuthenticated = require("../middlewares/isAuthenticated");
-
-const convertToBase64 = (file) => {
-  return `data:${file.mimetype};base64,${file.data.toString("base64")}`;
-};
+const { uploadToCloudInary } = require("../utils/utils");
+const cloudinary = require("cloudinary").v2;
+const convertToBase64 = require("../utils/utils");
 
 router.get("/offers", async (req, res) => {
   try {
@@ -104,16 +103,14 @@ router.post(
       });
 
       if (req.files) {
-        const convertedPicture = convertToBase64(req.files.picture);
-
-        const uploadResult = await cloudinary.uploader.upload(
-          convertedPicture,
-          {
-            folder: `/vinted/offers/${newOffer._id}`,
-          }
+        const product_image_url = uploadToCloudInary(
+          "offers",
+          req.files.picture,
+          newOffer._id
         );
-        newOffer.product_image = uploadResult;
+        newOffer.product_image = product_image_url;
       }
+
       await newOffer.save();
       return res.status(200).json(newOffer);
     } catch (error) {
