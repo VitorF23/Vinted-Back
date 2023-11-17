@@ -159,4 +159,43 @@ router.delete("/offer/delete/:id", async (req, res) => {
   }
 });
 
+router.put("/offer/modify/:id", fileUpload(), async (req, res) => {
+  try {
+    const { name, description, price, brand, size, color, condition, city } =
+      req.query;
+    if (
+      !name ||
+      !description ||
+      !price ||
+      !brand ||
+      !size ||
+      !color ||
+      !condition ||
+      !city
+    ) {
+      return res.status(400).json({ message: "Missing parameters" });
+    }
+    const modifiedOffer = await Offer.findById(req.params.id);
+    if (!modifiedOffer) {
+      return res.status(404).json({ message: "Offer not found" });
+    }
+
+    modifiedOffer.product_name = name;
+    modifiedOffer.product_description = description;
+    modifiedOffer.product_price = price;
+    modifiedOffer.product_details = {
+      MARQUE: brand,
+      TAILLE: size,
+      COULEUR: color,
+      ETAT: condition,
+      EMPLACEMENT: city,
+    };
+    console.log(req.query);
+    await modifiedOffer.save();
+    return res.status(200).json({ message: "Your listing has been modified" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router;
