@@ -61,7 +61,10 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
     res.status(200).json({
       _id: newDbAccount._id,
       token: token,
-      account: { username: req.body.username },
+      account: {
+        username: req.body.username,
+        avatar: newUser.account.avatar.secure_url,
+      },
     });
   } catch (error) {
     res.status(error.status).json({ message: error.message });
