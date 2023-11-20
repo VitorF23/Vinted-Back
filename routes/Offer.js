@@ -10,7 +10,7 @@ const convertToBase64 = require("../utils/utils");
 router.get("/offers", async (req, res) => {
   try {
     if (!req.query) {
-      res.status(500).json({ message: "Bad request" });
+      res.status(400).json({ message: "Bad request" });
     }
 
     const { title, priceMin, priceMax, sort, page } = req.query;
@@ -89,19 +89,19 @@ router.post(
   async (req, res) => {
     try {
       if (req.body.description.length > 500) {
-        return res.status(500).json({
+        return res.status(400).json({
           message: "description length over 500 characters",
         });
       }
 
       if (req.body.name.length > 50) {
-        return res.status(500).json({
+        return res.status(400).json({
           message: "product name length over 50 characters",
         });
       }
 
       if (req.body.price > 100000) {
-        return res.status(500).json({
+        return res.status(400).json({
           message: "product price over 100 000 $",
         });
       }
@@ -129,7 +129,6 @@ router.post(
 
         const uploadedImages = [];
         for (let i = 0; i < req.files.picture.length; i++) {
-          //console.log(req.files.picture[i]);
           uploadedImages.push(
             await uploadToCloudInary(
               "offers",
@@ -153,7 +152,7 @@ router.delete("/offer/delete/:id", async (req, res) => {
   const deletedoffer = await Offer.findByIdAndDelete(req.params.id);
 
   if (deletedoffer) {
-    res.status(201).json({ message: "Deleted" });
+    res.status(200).json({ message: "Deleted" });
   } else {
     res.status(400).json({ message: "Unable to delete" });
   }

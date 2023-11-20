@@ -13,7 +13,7 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
     const email = req.body.email;
     if (!email || email === "") {
       return res
-        .status(400)
+        .status(404)
         .json({ message: "You need to specify a username and email" });
     }
     const signupUsername = req.body.username;
