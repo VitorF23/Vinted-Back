@@ -190,9 +190,9 @@ router.put("/offer/modify/:id", fileUpload(), async (req, res) => {
       ETAT: condition,
       EMPLACEMENT: city,
     };
-    console.log(req.query);
+
     await modifiedOffer.save();
-    return res.status(200).json({ message: "Your listing has been modified" });
+    return res.status(200).json({ message: "Your offer has been modified" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
