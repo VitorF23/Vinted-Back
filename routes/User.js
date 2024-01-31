@@ -16,13 +16,16 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
         .status(404)
         .json({ message: "You need to specify a username and email" });
     }
+
     const signupUsername = req.body.username;
     if (!signupUsername || signupUsername === "") {
       return res
         .status(400)
         .json({ message: "You need to specify a username and email" });
     }
+
     const signupEmail = await User.findOne({ email: req.body.email });
+
     if (signupEmail) {
       return res.status(400).json({ message: "This email is not available" });
     }
@@ -58,16 +61,16 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
     }
 
     const newDbAccount = await newUser.save();
+
     res.status(200).json({
       _id: newDbAccount._id,
       token: token,
       account: {
         username: req.body.username,
-        avatar: newUser.account.avatar.secure_url,
       },
     });
   } catch (error) {
-    res.status(error.status).json({ message: error.message });
+    res.status(503).json({ message: error.message });
   }
 });
 
