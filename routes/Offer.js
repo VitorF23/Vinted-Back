@@ -4,8 +4,8 @@ const Offer = require("../models/Offer");
 const fileUpload = require("express-fileupload");
 const isAuthenticated = require("../middlewares/isAuthenticated");
 const { uploadToCloudInary } = require("../utils/utils");
-const cloudinary = require("cloudinary").v2;
-const convertToBase64 = require("../utils/utils");
+// const cloudinary = require("cloudinary").v2;
+// const convertToBase64 = require("../utils/utils");
 
 router.get("/offers", async (req, res) => {
   try {

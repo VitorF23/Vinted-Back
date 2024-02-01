@@ -78,7 +78,7 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
 router.post("/user/login", async (req, res) => {
   try {
     if (!req.body.email || !req.body.password) {
-      return res.status(400).json("Missing parameters");
+      return res.status(400).json("Missing parameters🚨");
     }
 
     const userFound = await User.findOne({ email: req.body.email });
