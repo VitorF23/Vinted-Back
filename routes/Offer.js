@@ -3,9 +3,8 @@ const router = express.Router();
 const Offer = require("../models/Offer");
 const fileUpload = require("express-fileupload");
 const isAuthenticated = require("../middlewares/isAuthenticated");
-const { uploadToCloudInary } = require("../utils/utils");
-// const cloudinary = require("cloudinary").v2;
-// const convertToBase64 = require("../utils/utils");
+const cloudinary = require("cloudinary").v2;
+const convertToBase64 = require("../utils/utils");
 
 router.get("/offers", async (req, res) => {
   try {
@@ -88,13 +87,13 @@ router.post(
   fileUpload(),
   async (req, res) => {
     try {
-      if (req.body.description.length > 500) {
+      if (req.body.title.length > 500) {
         return res.status(400).json({
           message: "description length over 500 characters",
         });
       }
 
-      if (req.body.name.length > 50) {
+      if (req.body.article.length > 50) {
         return res.status(400).json({
           message: "product name length over 50 characters",
         });
@@ -108,36 +107,27 @@ router.post(
 
       const newOffer = new Offer({
         product_name: req.body.name,
-        product_description: req.body.description,
+        product_description: req.body.article,
         product_price: req.body.price,
         product_details: [
-          { MARQUE: req.body.brand },
-          { TAILLE: req.body.size },
-          { COULEUR: req.body.color },
-          { ETAT: req.body.condition },
-          { EMPLACEMENT: req.body.city },
+          { MARQUE: req.body.marque },
+          { TAILLE: req.body.taille },
+          { COULEUR: req.body.couleur },
+          { ETAT: req.body.etat },
+          { EMPLACEMENT: req.body.lieu },
         ],
         owner: req.user,
       });
 
       if (req.files) {
-        if (req.files.picture.length > 5) {
-          res.status(500).json({
-            message: "Unable to create offer, pictures quantity over 5",
-          });
-        }
+        const pictureToUpload = req.files.picture;
 
-        const uploadedImages = [];
-        for (let i = 0; i < req.files.picture.length; i++) {
-          uploadedImages.push(
-            await uploadToCloudInary(
-              "offers",
-              req.files.picture[i],
-              newOffer._id + "-" + i.toString()
-            )
-          );
-        }
-        newOffer.product_image = uploadedImages;
+        const picture = await cloudinary.uploader.upload(
+          convertToBase64(pictureToUpload),
+          { public_id: `vinted/offers/${newOffer.id}`, overwrite: true }
+        );
+
+        newOffer.product_image = picture;
       }
 
       await newOffer.save();

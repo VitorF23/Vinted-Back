@@ -18,8 +18,10 @@ cloudinary.config({
 });
 const signupRoutes = require("./routes/User");
 const Offerid = require("./routes/Offer");
+const payment = require("./routes/Payment");
 app.use(Offerid);
 app.use(signupRoutes);
+app.use(payment);
 
 app.all("*", function (req, res) {
   res.json({ message: "Page not found" });
