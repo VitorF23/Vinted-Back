@@ -83,7 +83,7 @@ router.get("/offer/:id", async (req, res) => {
 
 router.post(
   "/offer/publish",
-  isAuthenticated,
+  // isAuthenticated,
   fileUpload(),
   async (req, res) => {
     try {
