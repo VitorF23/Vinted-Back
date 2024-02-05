@@ -14,7 +14,7 @@ router.get("/offers", async (req, res) => {
 
     const { title, priceMin, priceMax, sort, page } = req.query;
 
-    const elementInPages = 10;
+    const elementInPages = 20;
 
     let findParams = {};
     if (title) {
@@ -52,6 +52,7 @@ router.get("/offers", async (req, res) => {
     }
 
     const offers = await Offer.find(findParams)
+      // .populate("owner")
       .select()
       .sort(sortParams)
       .limit(elementInPages)
@@ -106,7 +107,7 @@ router.post(
       }
 
       const newOffer = new Offer({
-        product_name: req.body.name,
+        product_name: req.body.title,
         product_description: req.body.article,
         product_price: req.body.price,
         product_details: [
@@ -116,7 +117,7 @@ router.post(
           { ETAT: req.body.etat },
           { EMPLACEMENT: req.body.lieu },
         ],
-        owner: req.user,
+        owner: req.body.user,
       });
 
       if (req.files) {
