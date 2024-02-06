@@ -1,9 +1,3 @@
-// const convertToBase64 = (file) => {
-//   return `data:${file.mimetype};base64,${file.data.toString("base64")}`;
-// };
-
-// module.exports = convertToBase64;
-
 const cloudinary = require("cloudinary").v2;
 const encBase64 = require("crypto-js/enc-base64");
 
