@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Offer = require("../models/Offer");
+const User = require("../models/User");
 const fileUpload = require("express-fileupload");
 const isAuthenticated = require("../middlewares/isAuthenticated");
 const cloudinary = require("cloudinary").v2;
@@ -51,16 +52,16 @@ router.get("/offers", async (req, res) => {
       };
     }
 
-    const offers = await Offer.find(findParams)
-      // .populate("owner")
+    const newoffers = await Offer.find(findParams)
+      .populate("owner")
       .select()
       .sort(sortParams)
       .limit(elementInPages)
       .skip((page - 1) * elementInPages);
 
     const apiRes = {
-      count: offers.length,
-      offers: offers,
+      count: newoffers.length,
+      offers: newoffers,
     };
 
     return res.status(200).json(apiRes);
@@ -87,55 +88,46 @@ router.post(
   // isAuthenticated,
   fileUpload(),
   async (req, res) => {
+    console.log("1");
+    const { title, article, marque, taille, couleur, etat, lieu, price } =
+      req.body;
     try {
-      if (req.body.title.length > 500) {
-        return res.status(400).json({
-          message: "description length over 500 characters",
-        });
-      }
-
-      if (req.body.article.length > 50) {
-        return res.status(400).json({
-          message: "product name length over 50 characters",
-        });
-      }
-
-      if (req.body.price > 100000) {
-        return res.status(400).json({
-          message: "product price over 100 000 $",
-        });
-      }
+      console.log("2");
+      const convertedPicture = convertToBase64(req.files.picture);
+      const uploadResult = await cloudinary.uploader.upload(convertedPicture);
+      // console.log(uploadResult);
+      const url = uploadResult.secure_url;
+      const user = await User.findOne({ token: req.body.userToken });
+      console.log("user=>>>", user);
 
       const newOffer = new Offer({
-        product_name: req.body.title,
-        product_description: req.body.article,
-        product_price: req.body.price,
+        product_name: title,
+        product_description: article,
+        product_price: price,
         product_details: [
-          { MARQUE: req.body.marque },
-          { TAILLE: req.body.taille },
-          { COULEUR: req.body.couleur },
-          { ETAT: req.body.etat },
-          { EMPLACEMENT: req.body.lieu },
+          { MARQUE: marque },
+          { TAILLE: taille },
+          { COULEUR: couleur },
+          { ETAT: etat },
+          { EMPLACEMENT: lieu },
         ],
-        owner: req.body.user,
+        product_image: req.body.product_image,
+        owner: user._id,
+        product_image: {
+          secure_url: url,
+        },
       });
 
-      if (req.files) {
-        const pictureToUpload = req.files.picture;
-
-        const picture = await cloudinary.uploader.upload(
-          convertToBase64(pictureToUpload),
-          { public_id: `vinted/offers/${newOffer.id}`, overwrite: true }
-        );
-
-        newOffer.product_image = picture;
-      }
-
+      console.log(newOffer);
+      console.log("4");
       await newOffer.save();
-      return res.status(200).json(newOffer);
+      console.log("5");
+
+      return res.status(200).json({ newOffer });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ message: error });
     }
+    console.log("6");
   }
 );
 
