@@ -88,11 +88,9 @@ router.post(
   // isAuthenticated,
   fileUpload(),
   async (req, res) => {
-    console.log("1");
     const { title, article, marque, taille, couleur, etat, lieu, price } =
       req.body;
     try {
-      console.log("2");
       const convertedPicture = convertToBase64(req.files.picture);
       const uploadResult = await cloudinary.uploader.upload(convertedPicture);
       // console.log(uploadResult);
@@ -119,9 +117,8 @@ router.post(
       });
 
       console.log(newOffer);
-      console.log("4");
+
       await newOffer.save();
-      console.log("5");
 
       return res.status(200).json({ newOffer });
     } catch (error) {
